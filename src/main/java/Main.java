@@ -12,27 +12,14 @@ public class Main {
             = Persistence.createEntityManagerFactory("jpa_lab_4");
 
     public static void main(String[] args) {
-
-
-
-    }
-
-    private static void testSaveAndSelect() {
         EntityManager em = emf.createEntityManager();
         EntityTransaction tx1 = em.getTransaction();
 
         tx1.begin();
-        // 팀 1 저장
-        Team team1 = new Team("team1", "팀1");
-        em.persist(team1);
 
-        // 회원 1 저장
-        Member member1 = new Member("member1", "회원1");
-        member1.setTeam(team1);
+        //
+        testSave(em);
 
-        // 객체 그래프 탐색 조회 (객체 연관관계를 사용한 조회)
-        Member member = em.find(Member.class, "member1");
-        Team team = member.getTeam();
         // 객체지향 쿼리 사용 - jpql 조회
         queryLogicJoin(em);
 
@@ -42,15 +29,34 @@ public class Main {
         // 연관관계 제거
         deleteRelation(em);
 
-        // 회원 2 저장
-        Member member2 = new Member("member2", "회원2");
-        member2.setTeam(team1);
-
         // 일대다 컬렉션 조회
         biDirection(em);
 
         tx1.commit();
         em.close();
+    }
+
+    private static void testSave(EntityManager em) {
+
+        // 팀 1 저장
+        Team team1 = new Team("team1", "팀1");
+        em.persist(team1);
+
+        // 회원 1 저장
+        Member member1 = new Member("member1", "회원1");
+        // 연관관계 설정(연관관계의 주인)
+        member1.setTeam(team1);
+        em.persist(member1);
+
+        // 객체 그래프 탐색 조회 (객체 연관관계를 사용한 조회)
+//        Member member = em.find(Member.class, "member1");
+//        Team team = member.getTeam();
+
+        // 회원 2 저장
+        Member member2 = new Member("member2", "회원2");
+        // 연관관계 설정(연관관계의 주인)
+        member2.setTeam(team1);
+        em.persist(member2);
     }
 
     private static void queryLogicJoin(EntityManager em) {
@@ -96,4 +102,24 @@ public class Main {
         }
     }
 
+    // 양방향 연관관계 주의점
+    // 연관관계의 주인이 아닌 곳에만 값을 입력하면, DB에 값이 정상적으로 저장되지 않는다.
+    public static void testSaveNoOwner(EntityManager em) {
+
+        // 회원 1 저장
+        Member member3 = new Member("member3", "회원3");
+        em.persist(member3);
+
+        // 회원 2 저장
+        Member member4 = new Member("member4", "회원4");
+        em.persist(member4);
+
+        Team team2 = new Team("team2", "팀2");
+
+        // 주인이 아닌 곳만 연관관계 설정 > member3, member4의 TEAM_ID가 null.
+        team2.getMembers().add(member3);
+        team2.getMembers().add(member4);
+
+        em.persist(team2);
+    }
 }
