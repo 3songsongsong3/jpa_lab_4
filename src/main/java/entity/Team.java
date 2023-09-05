@@ -19,6 +19,7 @@ public class Team {
     // == 추가 ==
     // 일대다 관계를 매핑하기 위해 사용
     // mappedBy : 양방향 매핑일 때 사용, 반대쪽 매핑의 필드 이름을 속성값으로 사용
+    // mappedBy 속성을 사용하여 연관관계의 주인이 아님을 설정
     @OneToMany(mappedBy = "team")
     private List<Member> members = new ArrayList<Member>();
 
