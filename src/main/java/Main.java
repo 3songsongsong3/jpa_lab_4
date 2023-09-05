@@ -46,6 +46,9 @@ public class Main {
         Member member2 = new Member("member2", "회원2");
         member2.setTeam(team1);
 
+        // 일대다 컬렉션 조회
+        biDirection(em);
+
         tx1.commit();
         em.close();
     }
@@ -80,4 +83,17 @@ public class Main {
         Member member1 = em.find(Member.class, "member1");
         member1.setTeam(null); // 연관관계 제거
     }
+
+    // 일대다 방향으로 객체 그래프 탐색
+    private static void biDirection(EntityManager em) {
+
+        Team team = em.find(Team.class, "team1");
+        List<Member> members = team.getMembers(); // (팀 -> 회원) 객체 그래프 탐색
+
+        for (Member member: members) {
+            System.out.println("member.username = " +
+                        member.getUsername());
+        }
+    }
+
 }
